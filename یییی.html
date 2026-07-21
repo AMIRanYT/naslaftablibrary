@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ابر سامانه مدیریت تردد هوشمند سالن مطالعه | نسخه سازمانی v4.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* تعریف متغیرهای CSS برای پشتیبانی کامل از تم روشن و تاریک */
+        :root {
+            --bg-main: #f4f7fc;
+            --bg-card: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --border-color: #e2e8f0;
+            --primary: linear-gradient(135deg, #3182ce, #2b6cb0);
+            --primary-hover: linear-gradient(135deg, #2b6cb0, #2c5282);
+            --success: linear-gradient(135deg, #48bb78, #38a169);
+            --danger: linear-gradient(135deg, #f56565, #e53e3e);
+            --warning: linear-gradient(135deg, #ed8936, #dd6b20);
+            --accent: linear-gradient(135deg, #9f7aea, #805ad5);
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --nav-bg: rgba(255, 255, 255, 0.85);
+        }
+
+        [data-theme="dark"] {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --nav-bg: rgba(30, 41, 59, 0.85);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Vazirmatn", tahoma, sans-serif;
+            scrollbar-width: thin;
+            scrollbar-color: var(--text-muted) var(--bg-main);
+        }
+
+        *::-webkit-scrollbar { width: 6px; height: 6px; }
+        *::-webkit-scrollbar-track { background: var(--bg-main); }
+        *::-webkit-scrollbar-thumb { background-color: var(--text-muted); border-radius: 20px; }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding-bottom: 140px;
+            transition: var(--transition);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page {
+            display: none;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+        }
+
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-color);
+            background: var(--bg-main);
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #3182ce;
+            box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.2);
+            transform: scale(1.01);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--primary);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(49, 130, 206, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%) scale(0);
+            border-radius: 50%;
+            transition: transform 0.5s ease;
+        }
+
+        button:active::after {
+            transform: translate(-50%, -50%) scale(1);
+            transition: 0s;
+        }
+
+        button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(49, 130, 206, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        button.ok { background: var(--success); box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3); }
+        button.ok:hover { box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4); }
+
+        button.bad { background: var(--danger); box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3); }
+        button.bad:hover { box-shadow: 0 8px 25px rgba(245, 101, 101, 0.4); }
+
+        button.warn { background: var(--warning); box-shadow: 0 4px 15px rgba(237, 137, 54, 0.3); }
+        button.warn:hover { box-shadow: 0 8px 25px rgba(237, 137, 54, 0.4); }
+
+        button.accent { background: var(--accent); box-shadow: 0 4px 15px rgba(159, 122, 234, 0.3); }
+        
+        button.secondary {
+            background: var(--bg-main);
+            color: var(--text-main);
+            border: 2px solid var(--border-color);
+            box-shadow: none;
+        }
+        button.secondary:hover { background: var(--border-color); }
+
+        .nav-wrapper {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 850px;
+            z-index: 999;
+        }
+
+        .nav-container {
+            background: var(--nav-bg);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            border-radius: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-container button {
+            width: auto;
+            padding: 10px 16px;
+            font-size: 13px;
+            border-radius: 30px;
+            white-space: nowrap;
+            flex: 1;
+            background: transparent;
+            color: var(--text-main);
+            box-shadow: none;
+        }
+
+        .nav-container button.active-nav {
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+        }
+
+        .header-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 900;
+            color: #3182ce;
+        }
+
+        .sys-widgets {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .widget-btn {
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            border-radius: 50%;
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .motion-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            opacity: 1;
+        }
+        .motion-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .motion-card {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: var(--shadow);
+            transform: scale(0.9);
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes popIn { to { transform: scale(1); } }
+        .motion-card i { font-size: 70px; margin-bottom: 20px; }
+        .motion-overlay.in i { color: #48bb78; }
+        .motion-overlay.out i { color: #f56565; }
+        .motion-overlay.error i { color: #ed8936; }
+
+        .interactive-list {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 12px;
+            background: var(--bg-main);
+        }
+
+        .interactive-item {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-card);
+        }
+        .interactive-item:last-child { border-bottom: none; }
+        .interactive-item:hover { background: var(--bg-main); transform: translateX(-6px); }
+        .interactive-item.selected {
+            background: rgba(49, 130, 206, 0.12);
+            border-right: 5px solid #3182ce;
+        }
+
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--bg-main);
+            color: var(--text-main);
+        }
+        .badge.primary { background: #ebf8ff; color: #2b6cb0; }
+        .badge.success { background: #c6f6d5; color: #22543d; }
+        .badge.danger { background: #fed7d7; color: #742a2a; }
+
+        .toast-box {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 350px;
+            width: 100%;
+        }
+        .toast {
+            background: var(--bg-card);
+            border-left: 5px solid #3182ce;
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes slideInLeft { from { transform: translateX(-100%); opacity:0; } to { transform: translateX(0); opacity:1; } }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-mini-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+        }
+        .stat-mini-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+        }
+        .stat-mini-card .icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: var(--transition);
+        }
+        .stat-mini-card:hover .icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .terminal-report {
+            background: #1e293b;
+            color: #38bdf8;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+            direction: rtl;
+            text-align: right;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            border: 3px solid #0f172a;
+        }
+
+        .flex-row-layout {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .flex-row-layout > * { flex: 1; min-width: 200px; }
+
+        @media(max-width: 768px) {
+            body { padding-bottom: 180px; }
+            .nav-container { border-radius: 20px; flex-wrap: wrap; }
+            .nav-container button { flex: 1 0 30%; font-size: 11px; padding: 8px; }
+        }
+
+        /* ------------------ استایل‌های پیشرفته و انیمیشنی صفحه لندینگ ------------------ */
+        #landing-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #1a202c, #0d1117);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #landing-page.hide-lp {
+            opacity: 0;
+            transform: scale(1.1);
+            pointer-events: none;
+        }
+
+        .lp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .lp-logo-sm {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 20px;
+        }
+        .lp-logo-sm i {
+            color: #38bdf8;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+            animation: pulseIcon 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseIcon {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .lp-nav {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .lp-nav a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: var(--transition);
+            position: relative;
+        }
+        .lp-nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            right: 0;
+            width: 0;
+            height: 2px;
+            background: #38bdf8;
+            transition: var(--transition);
+        }
+        .lp-nav a:hover { color: #ffffff; }
+        .lp-nav a:hover::after { width: 100%; }
+
+        .lp-btn-login {
+            background: linear-gradient(135deg, #3182ce, #6366f1);
+            color: #ffffff;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            width: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(49, 130, 206, 0.4);
+        }
+        .lp-btn-login:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.6);
+        }
+
+        .lp-hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            animation: fadeInHero 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeInHero {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* لوگوی دایره‌ای شناور و درخشان */
+        .lp-circle-logo {
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(49, 130, 206, 0.3), rgba(159, 122, 234, 0.3));
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 50px rgba(56, 189, 248, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.2);
+            margin-bottom: 25px;
+            animation: floatLogo 4s ease-in-out infinite, glowPulse 3s infinite alternate;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.1); }
+            100% { box-shadow: 0 0 70px rgba(159, 122, 234, 0.7), inset 0 0 30px rgba(255, 255, 255, 0.4); }
+        }
+
+        .lp-logo-img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+            transition: var(--transition);
+        }
+
+        .lp-circle-logo:hover .lp-logo-img {
+            transform: scale(1.1) rotate(3deg);
+        }
+        
+        /* انیمیشن زنده تغییر رنگ متون (Text Gradient Motion) */
+        .lp-title {
+            font-size: 46px;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+        }
+
+        .lp-title span {
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc, #38bdf8);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: animatedGradientText 5s linear infinite;
+        }
+
+        @keyframes animatedGradientText {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+
+        .lp-subtitle {
+            font-size: 18px;
+            color: #94a3b8;
+            margin-bottom: 35px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .lp-subtitle span {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 4px 14px;
+            border-radius: 20px;
+            color: #38bdf8;
+            font-weight: 700;
+            display: inline-block;
+            transition: var(--transition);
+        }
+
+        .lp-subtitle span:hover {
+            transform: scale(1.08);
+            background: rgba(56, 189, 248, 0.25);
+        }
+
+        .lp-stats {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 28px;
+            border-radius: 50px;
+            color: #cbd5e1;
+            font-size: 15px;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+
+        .lp-stats:hover {
+            transform: translateY(-4px);
+            border-color: rgba(56, 189, 248, 0.4);
+            box-shadow: 0 15px 35px rgba(56, 189, 248, 0.2);
+        }
+
+        .lp-stats i {
+            color: #38bdf8;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- صفحه فرود (لندینگ) - ابتدا نمایش داده می‌شود  -->
+<!-- ============================================ -->
+<div id="landing-page">
+    <header class="lp-header">
+        <div class="lp-logo-sm">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>ابر سامانه تردد</span>
+        </div>
+        <nav class="lp-nav">
+            <a href="#">خانه</a>
+            <a href="javascript:void(0)" onclick="openAbout()">درباره ما</a>
+            <button class="lp-btn-login" onclick="enterSystem()">
+                <i class="fa-solid fa-right-to-bracket"></i> ورود به پنل
+            </button>
+        </nav>
+    </header>
+
+    <div class="lp-hero">
+        <div class="lp-circle-logo">
+            <img src="https://uploadkon.ir/uploads/94c021_26نسل-آفتاب-1024x1024.png"
+     alt="Logo"
+     class="lp-logo-img">
+        </div>
+        <h1 class="lp-title">ابر سامانه <span>تردد هوشمند</span></h1>
+        <p class="lp-subtitle">
+            با ارائه خدمات <span>پشتیبانی هوشمند</span> و مدیریت جامع سالن مطالعه
+        </p>
+        <div class="lp-stats">
+            <i class="fa-solid fa-users"></i>
+            <span>مدیریت هوشمند حضور و غیاب سازمانی</span>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- سیستم اصلی مدیریت تردد (در ابتدا مخفی است)   -->
+<!-- ============================================ -->
+<div id="app-system" style="display: none;">
+
+    <div id="toastContainer" class="toast-box"></div>
+
+    <div id="motionOverlay" class="motion-overlay">
+        <div class="motion-card">
+            <i id="motionIcon" class="fa-solid fa-spinner fa-spin"></i>
+            <h2 id="motionHeadline">در حال احراز هویت اولیه سیستم...</h2>
+            <p id="motionSubline" style="margin-top: 10px; font-weight: 500; color: var(--text-muted);"></p>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div class="header-panel">
+            <div class="brand">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>ابر سامانه هوشمند تردد کتابخانه</span>
+                <span id="systemRoleBadge" class="badge primary" style="display:none;">مهمان</span>
+            </div>
+            <div class="sys-widgets">
+                <button class="widget-btn" id="themeToggleBtn" title="تغییر تم دید شب"><i class="fa-solid fa-moon"></i></button>
+                <button class="widget-btn" id="quickClockBtn" title="ساعت زنده سیستم"><i class="fa-solid fa-clock"></i></button>
+                <span id="liveClockDisplay" style="font-weight: 800; font-size: 14px; margin-right: 6px;">--:--:--</span>
+            </div>
+        </div>
+
+        <div id="page_login" class="page active">
+            <div class="card" style="max-width: 500px; margin: 60px auto;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <i class="fa-solid fa-lock-open" style="font-size: 44px; color: #3182ce;"></i>
+                    <h2 style="margin-top: 10px;">ورود پورتال مرکزی</h2>
+                    <p style="color: var(--text-muted); font-size: 13px;">لطفاً کدملی/شناسه و رمز عبور خود را وارد نمایید</p>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> شناسه کاربری (کد ملی)</label>
+                    <input type="text" id="input_username" placeholder="مثال: 0960072144">
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-key"></i> رمز عبور ایمن</label>
+                    <input type="password" id="input_password" placeholder="••••••••">
+                </div>
+                <button id="action_submit_login" class="ok"><i class="fa-solid fa-right-to-bracket"></i> تصدیق هویت و ورود</button>
+        </div>
+    </div>
+
+    <div id="page_dashboard" class="page">
+        <div class="dashboard-grid">
+            <div class="stat-mini-card">
+                <div>
+                    <p style="color: var(--text-muted); font-size: 13px; font-weight:600;">کل دانش‌آموزان سالن</p>
+                    <h2 id="widget_stat_total" style="margin-bottom:0; font-size: 28px;">0</h2>
+                </div>
+                <div class="icon" style="background: #ebf8ff; color: #3182ce;"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <div class="stat-mini-card">
+                <div>
+                    <p style="color: var(--text-muted); font-size: 13px; font-weight:600;">حاضر در سالن مطالعه</p>
+                    <h2 id="widget_stat_present" style="margin-bottom:0; font-size: 28px; color: #38a169;">0</h2>
+                </div>
+                <div class="icon" style="background: #c6f6d5; color: #38a169;"><i class="fa-solid fa-door-open"></i></div>
+            </div>
+            <div class="stat-mini-card">
+                <div>
+                    <p style="color: var(--text-muted); font-size: 13px; font-weight:600;">غایبین امروز</p>
+                    <h2 id="widget_stat_absent" style="margin-bottom:0; font-size: 28px; color: #e53e3e;">0</h2>
+                </div>
+                <div class="icon" style="background: #fed7d7; color: #e53e3e;"><i class="fa-solid fa-user-slash"></i></div>
+            </div>
+        </div>
+
+        <div class="flex-row-layout">
+            <div class="card" style="flex: 2;">
+                <h3><i class="fa-solid fa-chart-pie"></i> مانیتورینگ وضعیت تراکم سالن</h3>
+                <div style="position: relative; height:250px; width:100%;">
+                    <canvas id="dashboardAnalyticsChart"></canvas>
+                </div>
+            </div>
+            <div class="card" style="flex: 1;">
+                <h3><i class="fa-solid fa-user-tie"></i> مراقب ناظر امروز</h3>
+                <div id="liveGuardWidgetContainer" class="interactive-item" style="border-radius: var(--radius-md); border: 1px dashed var(--warning); margin-top: 15px;">
+                    </div>
+                <div style="margin-top: 15px; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+                    <i class="fa-solid fa-circle-info"></i> برنامه حضور مراقبان بر اساس جدول هفتگی مصوب مدیریت کل تنظیم و لود می‌شود.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page_attendance" class="page">
+        <div class="card">
+            <h3><i class="fa-solid fa-fingerprint"></i> کنسول کنترل گیت ورود و خروج</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">نام، کلاس یا شناسه دانش‌آموز را سرچ کنید و گیت مربوطه را فعال کنید.</p>
+            
+            <input type="text" id="search_attendance_input" placeholder="🔍 جستجوی آنی دانش‌آموز (نام، کلاس، کدملی)...">
+            
+            <div class="interactive-list" id="attendance_students_target_list"></div>
+            
+            <div id="consoleSelectedStudentSection" style="margin-top: 20px; display: none;">
+                <div class="card" style="background: var(--bg-main); border: 2px solid #3182ce;">
+                    <h4 id="console_student_title">مشخصات انتخاب شده: </h4>
+                    <div id="console_student_history_summary" style="margin: 10px 0;"></div>
+                    
+                    <div class="flex-row-layout" style="margin-top: 15px;">
+                        <button id="gate_trigger_in" class="ok"><i class="fa-solid fa-sign-in-alt"></i> ثبت ورود مجاز</button>
+                        <button id="gate_trigger_out" class="bad"><i class="fa-solid fa-sign-out-alt"></i> ثبت خروج قانونی</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="gateEnvironmentAlert" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <div id="page_reports" class="page">
+        <div class="card">
+            <h3><i class="fa-solid fa-file-invoice"></i> موتور تولید گزارشات پیام‌رسانی و سازمانی</h3>
+            <div class="flex-row-layout" style="margin-bottom: 15px;">
+                <button id="report_action_copy" class="warn"><i class="fa-solid fa-copy"></i> کپی هوشمند متن گزارش (ایتا)</button>
+                <button id="report_action_excel" class="ok"><i class="fa-solid fa-file-excel"></i> خروجی فایل اکسل استاندارد (CSV)</button>
+                <button id="report_action_clear_logs" class="bad"><i class="fa-solid fa-trash-arrow-up"></i> تخلیه آرشیو ترددهای قدیمی</button>
+            </div>
+            
+            <h4 style="margin-top: 20px;"><i class="fa-solid fa-terminal"></i> پیش‌نمایش گزارش متنی خروجی:</h4>
+            <div id="textReportTerminalContainer" class="terminal-report"></div>
+        </div>
+    </div>
+
+    <div id="page_students" class="page">
+        <div class="card">
+            <h3><i class="fa-solid fa-user-plus"></i> ثبت پرونده دانش‌آموز جدید</h3>
+            <div class="flex-row-layout">
+                <div class="form-group">
+                    <label>نام و نام خانوادگی</label>
+                    <input type="text" id="reg_stu_name" placeholder="مثال: محمد امین کریمی">
+                </div>
+                <div class="form-group">
+                    <label>شناسه کاربری / کدملی</label>
+                    <input type="text" id="reg_stu_id" placeholder="مثال: 0925566771">
+                </div>
+                <div class="form-group">
+                    <label>پایه یا کلاس آموزشی</label>
+                    <input type="text" id="reg_stu_class" placeholder="مثال: یازدهم تجربی 1">
+                </div>
+            </div>
+            <button id="action_save_student" class="ok" style="margin-top: 10px;"><i class="fa-solid fa-floppy-disk"></i> ذخیره در پایگاه داده</button>
+        </div>
+
+        <div class="card">
+            <h3><i class="fa-solid fa-address-book"></i> بانک اطلاعات دانش‌آموزان عضو سالن</h3>
+            <div id="crudStudentDatabaseContainer"></div>
+        </div>
+    </div>
+
+    <div id="page_guards" class="page">
+        <div class="card">
+            <h3><i class="fa-solid fa-user-shield"></i> تعریف ناظر / مراقب جدید سالن</h3>
+            <div class="flex-row-layout">
+                <div class="form-group">
+                    <label>نام ناظر</label>
+                    <input type="text" id="reg_guard_name" placeholder="مثال: استاد حسینی">
+                </div>
+                <div class="form-group">
+                    <label>کد ملی (شناسه ورود)</label>
+                    <input type="text" id="reg_guard_id" placeholder="12345678">
+                </div>
+                <div class="form-group">
+                    <label>آیدی ایتا (بدون @)</label>
+                    <input type="text" id="reg_guard_eitaa" placeholder="hoseini_admin">
+                </div>
+            </div>
+            <button id="action_save_guard" class="ok" style="margin-top: 10px;"><i class="fa-solid fa-user-lock"></i> اعطای دسترسی و ثبت</button>
+        </div>
+
+        <div class="card">
+            <h3><i class="fa-solid fa-shield-cat"></i> لیست مراقبان دارای مجوز امنیتی</h3>
+            <div id="crudGuardDatabaseContainer"></div>
+        </div>
+    </div>
+
+    <div id="page_schedule" class="page">
+        <div class="card">
+            <h3><i class="fa-solid fa-calendar-days"></i> شیفت‌بندی هفتگی ناظرین</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">برای روزهای مجاز کاری سالن مطالعه، مراقب مسئول را مشخص سازید.</p>
+            
+            <div id="weeklyDutySchedulerFormContainer"></div>
+            
+            <button id="action_commit_schedule" class="accent" style="margin-top: 20px;"><i class="fa-solid fa-calendar-check"></i> اعمال و قفل اسکلت برنامه</button>
+        </div>
+    </div>
+
+    <div id="page_my_reports" class="page">
+        <div class="card">
+            <h3><i class="fa-solid fa-history"></i> کارنامه زمانی ترددهای ثبت‌شده شما</h3>
+            <div id="studentPersonalLogsHistoryContainer"></div>
+        </div>
+    </div>
+
+    <div id="page_settings" class="page">
+        <div class="card">
+            <h3><i class="fa-solid fa-gears"></i> پیکربندی پیشرفته و ماژول بکت‌آپ دیتابیس</h3>
+            <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">مدیریت کامل هسته ذخیره‌سازی محلی و قوانین محدودیت گیت کتابخانه.</p>
+            
+            <div class="card" style="background: var(--bg-main);">
+                <h4>🔒 امنیت و رمز عبور جاری</h4>
+                <div class="flex-row-layout" style="margin-top: 10px;">
+                    <div class="form-group">
+                        <label>رمز عبور جدید</label>
+                        <input type="password" id="setting_new_password" placeholder="رمز عبور جدید خود را وارد کنید">
+                    </div>
+                </div>
+                <button id="action_update_profile_pass" class="warn" style="width: auto;"><i class="fa-solid fa-key"></i> بروزرسانی کلمه عبور</button>
+            </div>
+
+            <div class="card" style="background: var(--bg-main); margin-top: 15px;">
+                <h4><i class="fa-solid fa-database"></i> فرآیندهای نگهداری داده (Backup / Restore)</h4>
+                <div class="flex-row-layout" style="margin-top: 15px;">
+                    <button id="setting_btn_export_db" class="secondary"><i class="fa-solid fa-file-export"></i> پشتیبان‌گیری دیتابیس (JSON)</button>
+                    <div>
+                        <input type="file" id="setting_file_import_db" accept=".json" style="display: none;">
+                        <button id="setting_btn_import_trigger" class="secondary"><i class="fa-solid fa-file-import"></i> بازیابی فایل پشتیبان</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="background: var(--bg-main); margin-top: 15px;">
+                <h4>⏱ قوانین محدودیت زمانی گیت تردد</h4>
+                <div class="flex-row-layout" style="margin-top: 10px;">
+                    <div class="form-group">
+                        <label>ساعت بازگشایی ابتدایی (صبح)</label>
+                        <input type="number" id="setting_cfg_start_hour" value="7">
+                    </div>
+                    <div class="form-group">
+                        <label>ساعت انسداد پایانی (شب)</label>
+                        <input type="number" id="setting_cfg_end_hour" value="20">
+                    </div>
+                </div>
+                <button id="action_save_time_config" class="ok" style="width:auto;"><i class="fa-solid fa-clock"></i> ثبت کانفیگ زمانی</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحه جدید تیکت‌ها -->
+    <div id="page_tickets" class="page">
+        <div class="card">
+            <h3><i class="fa-solid fa-life-ring"></i> سیستم پشتیبانی و تیکت‌های دانش‌آموزان</h3>
+            <div id="ticketContainer"></div>
+        </div>
+    </div>
+
+    </div> <!-- end container -->
+
+    <div class="nav-wrapper">
+        <div class="nav-container" id="globalNavigationAnchors" style="display: none;"></div>
+    </div>
+
+</div> <!-- end app-system -->
+
+<script>
+    /**
+     * سیستم معماری جامع و ماژولار ابر سامانه تردد
+     */
+    (function() {
+        const $ = id => document.getElementById(id);
+        const CORE_STORAGE_KEY = 'smart_attendance_db';
+
+        const INITIAL_MOCK_DATABASE = {
+            students: [
+                { id: '0960072144', name: 'امیرحسام وحیدنژآد', cls: '105', pass: '0960072144' },
+                { id: '1001', name: 'سارا محمدی', cls: '102', pass: '1001' },
+                { id: '1002', name: 'علی احمدی', cls: '105', pass: '1002' },
+                { id: '2001', name: 'دلاور', cls: 'دهم', pass: '2001' },
+                { id: '2002', name: 'زاکی', cls: 'دهم', pass: '2002' },
+                { id: '2003', name: 'رجایی', cls: 'دهم', pass: '2003' },
+                { id: '2004', name: 'شایان بصیر', cls: 'دهم', pass: '2004' },
+                { id: '2005', name: 'برهانی', cls: 'یازدهم', pass: '2005' },
+                { id: '2006', name: 'قاسمی', cls: 'یازدهم', pass: '2006' }
+            ],
+            guards: [
+                { id: '12345678', name: 'مهیمنی', eitaaId: 'mr_pashanejad', pass: '12345678' }
+            ],
+            logs: [],
+            schedule: {},
+            config: { startHour: 7, endHour: 20, endMinute: 1 },
+            tickets: []
+        };
+
+        let DB = INITIAL_MOCK_DATABASE;
+        let currentUser = null;
+        let appServerTime = new Date();
+        let targetSelectedStudentIndex = null;
+        let globalChartInstance = null;
+        let clockTimerLoop = null;
+
+        const WEEK_ALLOWED_DAYS = [6, 0, 1, 2, 3, 4];
+        const PERSIAN_DAY_NAME_MAP = { 6: 'شنبه', 0: 'یکشنبه', 1: 'دوشنبه', 2: 'سه‌شنبه', 3: 'چهارشنبه', 4: 'پنجشنبه', 5: 'جمعه' };
+
+        function initializeDatabaseHearth() {
+            const storedData = localStorage.getItem(CORE_STORAGE_KEY);
+            if (storedData) {
+                try {
+                    const parsed = JSON.parse(storedData);
+                    DB = {
+                        students: parsed.students || [],
+                        guards: parsed.guards || [],
+                        logs: parsed.logs || [],
+                        schedule: parsed.schedule || {},
+                        config: parsed.config || { startHour: 7, endHour: 20, endMinute: 1 },
+                        tickets: parsed.tickets || []
+                    };
+                    DB.students.forEach(s => { if(!s.pass) s.pass = s.id; });
+                    DB.guards.forEach(g => { if(!g.pass) g.pass = g.id; });
+                } catch (e) {
+                    DB = INITIAL_MOCK_DATABASE;
+                }
+            } else {
+                DB = INITIAL_MOCK_DATABASE;
+            }
+            commitDataToStorage();
+        }
+
+        function commitDataToStorage() {
+            localStorage.setItem(CORE_STORAGE_KEY, JSON.stringify(DB));
+        }
+
+        function compileDynamicAccessRoster() {
+            const primaryAdmin = { id: '145', name: 'اکبری', role: 'admin', pass: '145' };
+            const operationalGuards = DB.guards.map(g => ({ id: g.id, name: g.name, role: 'guard', pass: g.pass || g.id }));
+            const registeredStudents = DB.students.map(s => ({ id: s.id, name: s.name, role: 'student', pass: s.pass || s.id }));
+            return [primaryAdmin, ...operationalGuards, ...registeredStudents];
+        }
+
+        function displayToastMessage(msg, type = "info") {
+            const container = $('toastContainer');
+            if(!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            let borderCol = '#3182ce';
+            if(type === 'success') borderCol = '#48bb78';
+            if(type === 'error') borderCol = '#f56565';
+            if(type === 'warn') borderCol = '#ed8936';
+            toast.style.borderLeftColor = borderCol;
+            toast.innerHTML = `<i class="fa-solid fa-bell" style="color:${borderCol}"></i> <span style="font-size:13px; font-weight:600;">${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 4000);
+        }
+
+        function triggerFlashOverlayAnimation(type, title, subtitle = "") {
+            const overlay = $('motionOverlay');
+            const icon = $('motionIcon');
+            $('motionHeadline').textContent = title;
+            $('motionSubline').textContent = subtitle;
+            overlay.className = 'motion-overlay ' + type;
+            
+            if(type === 'in') icon.className = 'fa-solid fa-circle-check-to-slot animated';
+            else if(type === 'out') icon.className = 'fa-solid fa-door-open animated';
+            else if(type === 'error') icon.className = 'fa-solid fa-circle-exclamation animated';
+            else icon.className = 'fa-solid fa-spinner fa-spin';
+
+            setTimeout(() => { overlay.classList.add('hidden'); }, 1800);
+        }
+
+        function getPersianFormattedDateTime(date) {
+            return new Intl.DateTimeFormat('fa-IR', {
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            }).format(date);
+        }
+
+        async function synchronizeGlobalTimeFramework() {
+            const overlay = $('motionOverlay');
+            overlay.classList.remove('hidden');
+            try {
+                const response = await Promise.race([
+                    fetch('https://worldtimeapi.org/api/timezone/Asia/Tehran').then(r => { if(!r.ok) throw Error(); return r.json(); }),
+                    new Promise((_, rec) => setTimeout(() => rec('timeout'), 2000))
+                ]);
+                if (response && response.datetime) appServerTime = new Date(response.datetime);
+                else appServerTime = new Date();
+            } catch (err) {
+                appServerTime = new Date();
+            }
+
+            if(DB.logs.length > 0) {
+                const absoluteLastLog = DB.logs[DB.logs.length - 1];
+                if(absoluteLastLog.isoTime) {
+                    const lastLogDate = new Date(absoluteLastLog.isoTime);
+                    if(appServerTime < lastLogDate) {
+                        displayToastMessage("⚠️ اخطار امنیت شبکه: کلاک دستگاه نامعتبر است! هماهنگ‌سازی اجباری انجام شد.", "warn");
+                        appServerTime = new Date(lastLogDate.getTime() + 1000);
+                    }
+                }
+            }
+
+            if(clockTimerLoop) clearInterval(clockTimerLoop);
+            clockTimerLoop = setInterval(() => {
+                appServerTime = new Date(appServerTime.getTime() + 1000);
+                $('liveClockDisplay').textContent = appServerTime.toLocaleTimeString('fa-IR');
+                executeTimeDependentTriggers();
+            }, 1000);
+
+            setTimeout(() => { overlay.classList.add('hidden'); displayToastMessage("اتصال به هسته مرکزی با موفقیت برقرار شد.", "success"); }, 800);
+        }
+
+        function executeTimeDependentTriggers() {
+            if(!currentUser) return;
+            if($('page_dashboard').classList.contains('active')) refreshDashboardMetricsData();
+            if($('page_attendance').classList.contains('active')) updateGateStatusDisplayIndicators();
+            if($('page_reports').classList.contains('active')) renderSystemLiveTerminalReport();
+        }
+
+        function evaluateGateCalendarPermission() {
+            return WEEK_ALLOWED_DAYS.includes(appServerTime.getDay());
+        }
+
+        function verifyGateWorkingHourBoundaries() {
+            if(currentUser && currentUser.role === 'admin') return true;
+            const currentHour = appServerTime.getHours();
+            const currentMinute = appServerTime.getMinutes();
+            const config = DB.config || { startHour: 7, endHour: 20, endMinute: 1 };
+            
+            if(currentHour < config.startHour) return false;
+            if(currentHour > config.endHour) return false;
+            if(currentHour === config.endHour && currentMinute > config.endMinute) return false;
+            return true;
+        }
+
+        function fetchDutyGuardForCurrentDay() {
+            const weekdayIndex = appServerTime.getDay();
+            if (DB.schedule[weekdayIndex] && DB.guards.some(g => g.id === DB.schedule[weekdayIndex])) {
+                return DB.guards.find(g => g.id === DB.schedule[weekdayIndex]);
+            }
+            return DB.guards.length > 0 ? DB.guards[0] : { name: 'ثبت نشده', eitaaId: '' };
+        }
+
+        function assemblePortalNavigationAnchors() {
+            const nav = $('globalNavigationAnchors');
+            nav.innerHTML = '';
+            if(!currentUser) { nav.style.display = 'none'; return; }
+            nav.style.display = 'flex';
+
+            const registerAnchor = (text, pageId, icon) => {
+                const btn = document.createElement('button');
+                btn.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${text}</span>`;
+                btn.onclick = () => routeToPage(pageId);
+                btn.setAttribute('data-target', pageId);
+                nav.appendChild(btn);
+            };
+
+            registerAnchor('خانه', 'page_dashboard', 'fa-house');
+            if(currentUser.role === 'student') {
+                registerAnchor('ترددهای من', 'page_my_reports', 'fa-clipboard-user');
+            } else {
+                registerAnchor('گیت تردد', 'page_attendance', 'fa-fingerprint');
+                registerAnchor('گزارشات', 'page_reports', 'fa-file-invoice');
+                registerAnchor('دانش‌آموزان', 'page_students', 'fa-user-group');
+            }
+            if(currentUser.role === 'admin') {
+                registerAnchor('مراقبین', 'page_guards', 'fa-user-shield');
+                registerAnchor('برنامه‌ریزی', 'page_schedule', 'fa-calendar-days');
+            }
+            registerAnchor('تنظیمات', 'page_settings', 'fa-sliders');
+            registerAnchor('پشتیبانی', 'page_tickets', 'fa-life-ring');
+
+            const logoutBtn = document.createElement('button');
+            logoutBtn.innerHTML = `<i class="fa-solid fa-power-off"></i>`;
+            logoutBtn.style.background = 'var(--danger)';
+            logoutBtn.style.color = 'white';
+            logoutBtn.style.flex = '0 0 auto';
+            logoutBtn.onclick = processSecureLogout;
+            nav.appendChild(logoutBtn);
+        }
+
+        function routeToPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const targetPage = $(pageId);
+            if(targetPage) targetPage.classList.add('active');
+
+            document.querySelectorAll('#globalNavigationAnchors button').forEach(b => {
+                if(b.getAttribute('data-target') === pageId) b.classList.add('active-nav');
+                else b.classList.remove('active-nav');
+            });
+
+            if(pageId === 'page_dashboard') { refreshDashboardMetricsData(); initLiveGuardWidget(); }
+            if(pageId === 'page_attendance') { populateAttendanceStudentsRoster(); updateGateStatusDisplayIndicators(); }
+            if(pageId === 'page_reports') { renderSystemLiveTerminalReport(); }
+            if(pageId === 'page_students') { renderStudentCrudGridTable(); }
+            if(pageId === 'page_guards') { renderGuardCrudGridTable(); }
+            if(pageId === 'page_schedule') { buildWeeklySchedulerTemplateForm(); }
+            if(pageId === 'page_my_reports') { buildStudentPersonalLogsHistory(); }
+            if(pageId === 'page_settings') { loadCurrentSettingsFormValues(); }
+            if(pageId === 'page_tickets') { renderTicketPage(); }
+        }
+
+        function processSecureLogout() {
+            currentUser = null;
+            $('systemRoleBadge').style.display = 'none';
+            assemblePortalNavigationAnchors();
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            $('page_login').classList.add('active');
+            $('input_username').value = '';
+            $('input_password').value = '';
+            displayToastMessage("نشست کاربری با موفقیت بسته شد.", "info");
+        }
+
+        $('action_submit_login').onclick = function() {
+            const user = $('input_username').value.trim();
+            const password = $('input_password').value.trim();
+            
+            if(!user || !password) {
+                displayToastMessage("شناسه کاربری و کلمه عبور الزامی است.", "error");
+                return;
+            }
+
+            const masterRoster = compileDynamicAccessRoster();
+            const authenticatedRecord = masterRoster.find(u => u.id === user);
+
+            if(!authenticatedRecord) {
+                displayToastMessage("کاربری با مشخصات فوق در سیستم یافت نشد.", "error");
+                return;
+            }
+
+            if(authenticatedRecord.pass !== password) {
+                displayToastMessage("کلمه عبور وارد شده صواب نمی‌باشد.", "error");
+                return;
+            }
+
+            currentUser = authenticatedRecord;
+            const roleBadge = $('systemRoleBadge');
+            roleBadge.style.display = 'inline-block';
+            if(currentUser.role === 'admin') { roleBadge.textContent = "مدیر سیستم"; roleBadge.className = "badge danger"; }
+            else if(currentUser.role === 'guard') { roleBadge.textContent = "مراقب"; roleBadge.className = "badge primary"; }
+            else { roleBadge.textContent = "دانش‌آموز"; roleBadge.className = "badge success"; }
+
+            displayToastMessage(`خوش آمدید ${currentUser.name}`, "success");
+            assemblePortalNavigationAnchors();
+            routeToPage('page_dashboard');
+        };
+
+        function initLiveGuardWidget() {
+            const container = $('liveGuardWidgetContainer');
+            if(!container) return;
+            const guard = fetchDutyGuardForCurrentDay();
+            if(guard.eitaaId) {
+                container.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                        <div><strong><i class="fa-solid fa-user-shield"></i> ${escapeHtml(guard.name)}</strong></div>
+                        <a href="https://eitaa.com/${guard.eitaaId}" target="_blank" class="badge primary" style="text-decoration:none;"><i class="fa-brands fa-telegram"></i> ارتباط در ایتا</a>
+                    </div>`;
+            } else {
+                container.innerHTML = `<div><strong><i class="fa-solid fa-user-shield"></i> ${escapeHtml(guard.name)}</strong> <span class="badge">${guard.id ? 'فاقد ارتباط آنلاین' : 'عدم تخصیص'}</span></div>`;
+            }
+        }
+
+        function refreshDashboardMetricsData() {
+            if(!currentUser) return;
+            const totalCount = DB.students.length;
+            
+            let presentCount = 0;
+            DB.students.forEach(s => {
+                const individualLogs = DB.logs.filter(l => l.studentId === s.id);
+                if(individualLogs.length > 0) {
+                    const lastLog = individualLogs[individualLogs.length - 1];
+                    if(lastLog.type === 'in') presentCount++;
+                }
+            });
+
+            const absentCount = totalCount - presentCount;
+
+            $('widget_stat_total').textContent = totalCount.toLocaleString('fa-IR');
+            $('widget_stat_present').textContent = presentCount.toLocaleString('fa-IR');
+            $('widget_stat_absent').textContent = absentCount.toLocaleString('fa-IR');
+
+            const ctx = $('dashboardAnalyticsChart');
+            if(!ctx) return;
+            
+            if(globalChartInstance) globalChartInstance.destroy();
+            globalChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['حاضر در سالن مطالعه', 'غایبین تفکیکی'],
+                    datasets: [{
+                        data: [presentCount, absentCount],
+                        backgroundColor: ['#48bb78', '#f56565'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Vazirmatn' } } } }
+                }
+            });
+        }
+
+        function updateGateStatusDisplayIndicators() {
+            const container = $('gateEnvironmentAlert');
+            if(!container) return;
+            const isDayAllowed = evaluateGateCalendarPermission();
+            const isHourAllowed = verifyGateWorkingHourBoundaries();
+            const config = DB.config || { startHour: 7, endHour: 20, endMinute: 1 };
+
+            let html = '';
+            if(!isDayAllowed) {
+                html = `<div class="card" style="background:#fff5f5; border-right:5px solid #f56565; padding:12px; margin:0;"><span style="color:#c53030; font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> امروز جمعه سالن مطالعه تعطیل است. ثبت تردد دانش‌آموزی مسدود می‌باشد.</span></div>`;
+            } else if(!isHourAllowed) {
+                html = `<div class="card" style="background:#fffaf0; border-right:5px solid #dd6b20; padding:12px; margin:0;"><span style="color:#dd6b20; font-weight:700;"><i class="fa-solid fa-business-time"></i> گیت خارج از بازه مصوب کاری است (ساعت کاری مجاز: ${config.startHour} الی ${config.endHour}). فقط ادمین مجاز به ثبت است.</span></div>`;
+            } else {
+                html = `<div class="card" style="background:#f0fff4; border-right:5px solid #38a169; padding:12px; margin:0;"><span style="color:#2f855a; font-weight:700;"><i class="fa-solid fa-circle-check"></i> سیستم گیت در وضعیت عملیاتی و آماده اسکن کارت تردد می‌باشد.</span></div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function populateAttendanceStudentsRoster() {
+            const container = $('attendance_students_target_list');
+            if(!container) return;
+            container.innerHTML = '';
+            const searchKey = $('search_attendance_input').value.trim();
+
+            const filtered = DB.students.filter(s => 
+                s.name.includes(searchKey) || s.id.includes(searchKey) || s.cls.includes(searchKey)
+            );
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);">کاربری با مشخصات فوق یافت نشد.</div>`;
+                return;
+            }
+
+            filtered.forEach(s => {
+                const item = document.createElement('div');
+                const realDbIndex = DB.students.findIndex(x => x.id === s.id);
+                item.className = 'interactive-item' + (targetSelectedStudentIndex === realDbIndex ? ' selected' : '');
+                
+                const indLogs = DB.logs.filter(l => l.studentId === s.id);
+                const currentStatus = (indLogs.length > 0 && indLogs[indLogs.length - 1].type === 'in') ? 
+                    `<span class="badge success">داخل سالن</span>` : `<span class="badge">خارج از سالن</span>`;
+
+                item.innerHTML = `
+                    <div><strong>${escapeHtml(s.name)}</strong> <small style="color:var(--text-muted)">کلاس ${escapeHtml(s.cls)}</small></div>
+                    <div>${currentStatus}</div>
+                `;
+
+                item.onclick = function() {
+                    targetSelectedStudentIndex = realDbIndex;
+                    populateAttendanceStudentsRoster();
+                    displaySelectedStudentConsoleDashboard(s);
+                };
+
+                container.appendChild(item);
+            });
+        }
+
+        function displaySelectedStudentConsoleDashboard(student) {
+            const panel = $('consoleSelectedStudentSection');
+            panel.style.display = 'block';
+            $('console_student_title').innerHTML = `<i class="fa-solid fa-circle-user"></i> کنسول تردد: ${escapeHtml(student.name)} [کد کلاس: ${escapeHtml(student.cls)}]`;
+
+            const todayISOString = appServerTime.toISOString().slice(0, 10);
+            const rawLogs = DB.logs.filter(l => l.studentId === student.id).sort((a,b) => new Date(a.isoTime) - new Date(b.isoTime));
+            const todayLogs = rawLogs.filter(l => l.isoTime && l.isoTime.slice(0, 10) === todayISOString);
+
+            let summaryHtml = '<div style="font-size:13px; line-height:1.7;">';
+            if(todayLogs.length === 0) {
+                summaryHtml += `🟢 <span style="color:var(--text-muted)">امروز هیچ غیبتی یا ترددی برای این کاربر ثبت نشده است.</span>`;
+            } else {
+                summaryHtml += `<strong>ترددهای امروز:</strong><br>`;
+                todayLogs.forEach(l => {
+                    const directionBadge = l.type === 'in' ? '<span style="color:#48bb78"> ورود</span>' : '<span style="color:#f56565"> خروج</span>';
+                    summaryHtml += `🔹 ${directionBadge} در ساعت: ${l.time.split('،')[1] || l.time}<br>`;
+                });
+            }
+            summaryHtml += '</div>';
+            $('console_student_history_summary').innerHTML = summaryHtml;
+        }
+
+        function commitGateAttendanceLog(direction) {
+            if(targetSelectedStudentIndex === null || !DB.students[targetSelectedStudentIndex]) {
+                displayToastMessage("ابتدا دانش‌آموز مورد نظر را از لیست فوق گزینش کنید.", "warn");
+                return;
+            }
+
+            const student = DB.students[targetSelectedStudentIndex];
+            
+            if(!evaluateGateCalendarPermission() && currentUser.role !== 'admin') {
+                triggerFlashOverlayAnimation('error', 'خطای مسدودی گیت', 'امروز جمعه سالن مطالعه تعطیل رسمی است.');
+                return;
+            }
+            if(!verifyGateWorkingHourBoundaries() && currentUser.role !== 'admin') {
+                triggerFlashOverlayAnimation('error', 'خطای بازه زمانی', 'در این ساعت گیت خروج/ورود منقضی شده است.');
+                return;
+            }
+
+            const todayISOString = appServerTime.toISOString().slice(0, 10);
+            const todayLogs = DB.logs.filter(l => 
+                l.studentId === student.id && 
+                l.isoTime && 
+                l.isoTime.slice(0, 10) === todayISOString
+            );
+
+            if (direction === 'in' && todayLogs.some(l => l.type === 'in')) {
+                displayToastMessage("⛔ خطا: امروز یک بار ورود برای این کاربر ثبت شده است. امکان ورود مجدد وجود ندارد.", "error");
+                return;
+            }
+
+            if (direction === 'out' && todayLogs.some(l => l.type === 'out')) {
+                displayToastMessage("⛔ خطا: امروز یک بار خروج برای این کاربر ثبت شده است. امکان خروج مجدد وجود ندارد.", "error");
+                return;
+            }
+
+            if (direction === 'out' && !todayLogs.some(l => l.type === 'in')) {
+                displayToastMessage("⛔ خطا: این کاربر امروز ورود نداشته است. ابتدا باید وارد شود.", "error");
+                return;
+            }
+
+            const currentShamsiString = getPersianFormattedDateTime(appServerTime);
+            DB.logs.push({
+                studentId: student.id,
+                type: direction,
+                time: currentShamsiString,
+                isoTime: appServerTime.toISOString()
+            });
+            commitDataToStorage();
+
+            triggerFlashOverlayAnimation(direction, direction === 'in' ? 'ورود با موفقیت ثبت شد' : 'خروج با موفقیت ثبت شد', student.name);
+            displayToastMessage(`تراکنش تردد ${student.name} در سیستم قفل شد.`, "success");
+            
+            populateAttendanceStudentsRoster();
+            displaySelectedStudentConsoleDashboard(student);
+            refreshDashboardMetricsData();
+        }
+
+        $('gate_trigger_in').onclick = () => commitGateAttendanceLog('in');
+        $('gate_trigger_out').onclick = () => commitGateAttendanceLog('out');
+        $('search_attendance_input').oninput = () => populateAttendanceStudentsRoster();
+
+        function compileEnterpriseDailyTextReport() {
+            const todayStr = appServerTime.toISOString().slice(0, 10);
+            const todayLogs = DB.logs.filter(l => l.isoTime && l.isoTime.slice(0, 10) === todayStr);
+
+            const trackingRoster = new Map();
+            DB.students.forEach(s => {
+                trackingRoster.set(s.id, { name: s.name, cls: s.cls, intervals: [] });
+            });
+
+            const sortedTodayLogs = todayLogs.sort((a,b) => new Date(a.isoTime) - new Date(b.isoTime));
+            
+            sortedTodayLogs.forEach(l => {
+                const record = trackingRoster.get(l.studentId);
+                if(record) {
+                    const timePart = l.time.split('،')[1]?.trim() || l.time;
+                    const cleanHm = timePart.substring(0, 5);
+                    if(l.type === 'in') {
+                        record.intervals.push({ in: cleanHm, out: null });
+                    } else if(l.type === 'out') {
+                        if(record.intervals.length > 0 && record.intervals[record.intervals.length - 1].out === null) {
+                            record.intervals[record.intervals.length - 1].out = cleanHm;
+                        } else {
+                            record.intervals.push({ in: 'نامشخص', out: cleanHm });
+                        }
+                    }
+                }
+            });
+
+            const classGroups = new Map();
+            trackingRoster.forEach((data, id) => {
+                if(data.intervals.length > 0) {
+                    if(!classGroups.has(data.cls)) classGroups.set(data.cls, []);
+                    classGroups.get(data.cls).push(data);
+                }
+            });
+
+            const sortedClasses = Array.from(classGroups.keys()).sort((a,b) => a.localeCompare(b));
+            
+            let startHourDisplay = "۰۷:۰۰";
+            let endHourDisplay = appServerTime.toLocaleTimeString('fa-IR').substring(0, 5);
+
+            const persianDateFormatter = new Intl.DateTimeFormat('fa-IR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(appServerTime);
+            const currentDutyGuard = fetchDutyGuardForCurrentDay();
+
+            let report = `🔰 لیست حضور و غیاب دانش‌آموزان در سالن مطالعه 🔰\n\n`;
+            report += `📅 تاریخ: ${persianDateFormatter}\n`;
+            report += `⏰ شروع فرآیند: ساعت ${startHourDisplay}\n\n`;
+
+            sortedClasses.forEach(cls => {
+                report += `📌 کلاس: ${cls}\n`;
+                const list = classGroups.get(cls);
+                list.forEach(s => {
+                    let intervalStrings = s.intervals.map(i => {
+                        if(i.in && i.out) return `[${i.in} الی ${i.out}]`;
+                        if(i.in) return `[ورود: ${i.in} - در حال مطالعه]`;
+                        return `[خروج: ${i.out}]`;
+                    }).join(' | ');
+                    
+                    report += `👤 ${s.name} 👈 ${intervalStrings}\n`;
+                });
+                report += `\n`;
+            });
+
+            report += `👤 مراقب و ناظر ارشد: ${currentDutyGuard.name}\n`;
+            if(currentDutyGuard.eitaaId) report += `🆔 آیدی ارتباطی ناظر: @${currentDutyGuard.eitaaId}\n`;
+            report += `\n🔻 وضعیت گیت در زمان گزارش‌گیری: اتمام فرآیند پارت جاری (${endHourDisplay})`;
+
+            return report;
+        }
+
+        function renderSystemLiveTerminalReport() {
+            const txt = compileEnterpriseDailyTextReport();
+            const container = $('textReportTerminalContainer');
+            if(container) container.textContent = txt;
+        }
+
+        $('report_action_copy').onclick = function() {
+            const txt = compileEnterpriseDailyTextReport();
+            navigator.clipboard.writeText(txt).then(() => {
+                displayToastMessage("متن گزارش با الگوریتم شکیل در حافظه موقت کپی شد.", "success");
+            }).catch(() => {
+                displayToastMessage("خطا در کپی کلپ‌بورد سیستم عامل.", "error");
+            });
+        };
+
+        $('report_action_excel').onclick = function() {
+            if(DB.logs.length === 0) {
+                displayToastMessage("دیتا لاگ ترددها تهی است. خروجی اکسل میسر نمی‌باشد.", "warn");
+                return;
+            }
+            let csvContent = "\uFEFF";
+            csvContent += "شناسه کاربری,نام دانش‌آموز,پایه/کلاس,نوع تردد,ساعت و تاریخ ثبت\n";
+
+            DB.logs.forEach(l => {
+                const matchedStu = DB.students.find(s => s.id === l.studentId);
+                const name = matchedStu ? matchedStu.name : 'مراقب/ادمین';
+                const cls = matchedStu ? matchedStu.cls : 'کادر';
+                const direction = l.type === 'in' ? 'ورود' : 'خروج';
+                csvContent += `"${l.studentId}","${name}","${cls}","${direction}","${l.time}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Library_Attendance_Report_${appServerTime.toISOString().slice(0,10)}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            displayToastMessage("ملحقات فایل CSV با موفقیت کامپایل و دانلود شد.", "success");
+        };
+
+        $('report_action_clear_logs').onclick = function() {
+            if(confirm("⚠️ توجه خطرناک: آیا از حذف دائمی آرشیو کل ترددهای سیستم اطمینان کامل دارید؟ (دانش‌آموزان حذف نخواهند شد)")) {
+                DB.logs = [];
+                commitDataToStorage();
+                displayToastMessage("تمام دیتای لاگ‌ها با موفقیت پاکسازی شد.", "success");
+                renderSystemLiveTerminalReport();
+                refreshDashboardMetricsData();
+            }
+        };
+
+        function renderStudentCrudGridTable() {
+            const box = $('crudStudentDatabaseContainer');
+            if(!box) return;
+            box.innerHTML = '';
+
+            if(DB.students.length === 0) {
+                box.innerHTML = `<p style="text-align:center; padding:20px; color:var(--text-muted);">هیچ دانش‌آموزی در هسته مرکزی دیتابیس ثبت نشده است.</p>`;
+                return;
+            }
+
+            let html = `
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; text-align:right; font-size:13px;">
+                        <thead>
+                            <tr style="background:var(--bg-main); border-bottom:2px solid var(--border-color);">
+                                <th style="padding:12px;">نام دانش‌آموز</th>
+                                <th style="padding:12px;">کدملی / شناسه</th>
+                                <th style="padding:12px;">پایه - کلاس</th>
+                                <th style="padding:12px; text-align:center;">عملیات حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+            DB.students.forEach((s, idx) => {
+                html += `
+                    <tr style="border-bottom:1px solid var(--border-color);">
+                        <td style="padding:12px; font-weight:700;">${escapeHtml(s.name)}</td>
+                        <td style="padding:12px; font-family:monospace;">${escapeHtml(s.id)}</td>
+                        <td style="padding:12px;"><span class="badge primary">${escapeHtml(s.cls)}</span></td>
+                        <td style="padding:12px; text-align:center;">
+                            <button class="bad" style="width:36px; height:36px; padding:0; border-radius:50%;" onclick="window.LibraryAppBridge.removeStudentByIndex(${idx})">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+            box.innerHTML = html;
+        }
+
+        $('action_save_student').onclick = function() {
+            const name = $('reg_stu_name').value.trim();
+            const id = $('reg_stu_id').value.trim();
+            const cls = $('reg_stu_class').value.trim();
+
+            if(!name || !id || !cls) {
+                displayToastMessage("تکمیل تمام فیلدهای فرم دانش‌آموز اجباری است.", "error");
+                return;
+            }
+
+            if(DB.students.some(x => x.id === id)) {
+                displayToastMessage("خطا: دانش‌آموزی با این کدملی/شناسه قبلاً ثبت شده است.", "error");
+                return;
+            }
+
+            DB.students.push({ id, name, cls, pass: id });
+            commitDataToStorage();
+            displayToastMessage(`پرونده دانش‌آموز ${name} با موفقیت به بانک اطلاعات اضافه شد.`, "success");
+            
+            $('reg_stu_name').value = '';
+            $('reg_stu_id').value = '';
+            $('reg_stu_class').value = '';
+            renderStudentCrudGridTable();
+            refreshDashboardMetricsData();
+        };
+
+        window.removeStudentByIndex = function(index) {
+            if(confirm("آیا از حذف دائم این دانش‌آموز و تمام تاریخچه ترددهای وی مطمئن هستید؟")) {
+                const targetStu = DB.students[index];
+                DB.logs = DB.logs.filter(l => l.studentId !== targetStu.id);
+                DB.students.splice(index, 1);
+                commitDataToStorage();
+                displayToastMessage("رکورد کاربر و آرشیو ترددها با موفقیت تخلیه شد.", "success");
+                renderStudentCrudGridTable();
+                targetSelectedStudentIndex = null;
+                $('consoleSelectedStudentSection').style.display = 'none';
+                refreshDashboardMetricsData();
+            }
+        };
+
+        function renderGuardCrudGridTable() {
+            const box = $('crudGuardDatabaseContainer');
+            if(!box) return;
+            box.innerHTML = '';
+
+            if(DB.guards.length === 0) {
+                box.innerHTML = `<p style="text-align:center; padding:20px; color:var(--text-muted);">هیچ مراقب رسمی در دیتابیس ثبت نشده است.</p>`;
+                return;
+            }
+
+            let html = `
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; text-align:right; font-size:13px;">
+                        <thead>
+                            <tr style="background:var(--bg-main); border-bottom:2px solid var(--border-color);">
+                                <th style="padding:12px;">نام ناظر</th>
+                                <th style="padding:12px;">شناسه دسترسی</th>
+                                <th style="padding:12px;">پیام‌رسان ایتا</th>
+                                <th style="padding:12px; text-align:center;">عملیات حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+            DB.guards.forEach((g, idx) => {
+                html += `
+                    <tr style="border-bottom:1px solid var(--border-color);">
+                        <td style="padding:12px; font-weight:700;">${escapeHtml(g.name)}</td>
+                        <td style="padding:12px; font-family:monospace;">${escapeHtml(g.id)}</td>
+                        <td style="padding:12px;">${g.eitaaId ? `<span class="badge success">@${escapeHtml(g.eitaaId)}</span>` : '<span class="badge">ثبت نشده</span>'}</td>
+                        <td style="padding:12px; text-align:center;">
+                            <button class="bad" style="width:36px; height:36px; padding:0; border-radius:50%;" onclick="window.LibraryAppBridge.removeGuardByIndex(${idx})">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+            box.innerHTML = html;
+        }
+
+        $('action_save_guard').onclick = function() {
+            const name = $('reg_guard_name').value.trim();
+            const id = $('reg_guard_id').value.trim();
+            const eitaa = $('reg_guard_eitaa').value.trim();
+
+            if(!name || !id) {
+                displayToastMessage("وارد کردن نام و شناسه ناظر الزامی است.", "error");
+                return;
+            }
+
+            const existingIndex = DB.guards.findIndex(x => x.id === id);
+            if(existingIndex !== -1) {
+                DB.guards[existingIndex].name = name;
+                DB.guards[existingIndex].eitaaId = eitaa;
+                displayToastMessage("پروفایل ناظر مورد نظر بروزرسانی شد.", "success");
+            } else {
+                DB.guards.push({ id, name, eitaaId: eitaa, pass: id });
+                displayToastMessage("مراقب جدید با موفقیت به کادر ناظرین ملحق شد.", "success");
+            }
+
+            commitDataToStorage();
+            $('reg_guard_name').value = '';
+            $('reg_guard_id').value = '';
+            $('reg_guard_eitaa').value = '';
+            renderGuardCrudGridTable();
+            initLiveGuardWidget();
+        };
+
+        window.removeGuardByIndex = function(index) {
+            if(confirm("آیا مایل به خلع دسترسی این مراقب هستید؟ (شیفت‌های هفتگی وی نیز ملغی می‌گردد)")) {
+                const targetGuard = DB.guards[index];
+                for(let day in DB.schedule) {
+                    if(DB.schedule[day] === targetGuard.id) delete DB.schedule[day];
+                }
+                DB.guards.splice(index, 1);
+                commitDataToStorage();
+                displayToastMessage("مراقب خلع دسترسی شد.", "success");
+                renderGuardCrudGridTable();
+                initLiveGuardWidget();
+            }
+        };
+
+        function buildWeeklySchedulerTemplateForm() {
+            const container = $('weeklyDutySchedulerFormContainer');
+            if(!container) return;
+            container.innerHTML = '';
+
+            WEEK_ALLOWED_DAYS.forEach(dayIndex => {
+                const row = document.createElement('div');
+                row.className = 'schedule-row card';
+                row.style.background = 'var(--bg-main)';
+                row.style.padding = '12px 18px';
+                row.style.marginBottom = '10px';
+
+                row.innerHTML = `
+                    <label style="font-weight:700; min-width:120px;">🗓 روز ${PERSIAN_DAY_NAME_MAP[dayIndex]}:</label>
+                    <select id="weekly_select_day_${dayIndex}" style="margin-top:0; flex:1;">
+                        <option value="">-- فاقد ناظر مصوب (حالت پیش‌فرض کتابخانه) --</option>
+                    </select>
+                `;
+                container.appendChild(row);
+
+                const selectElement = $(`weekly_select_day_${dayIndex}`);
+                DB.guards.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.id;
+                    opt.textContent = g.name + (g.eitaaId ? ` (@${g.eitaaId})` : '');
+                    if(DB.schedule[dayIndex] === g.id) opt.selected = true;
+                    selectElement.appendChild(opt);
+                });
+            });
+        }
+
+        $('action_commit_schedule').onclick = function() {
+            WEEK_ALLOWED_DAYS.forEach(day => {
+                const select = $(`weekly_select_day_${day}`);
+                if(select) {
+                    const selectedId = select.value;
+                    if(selectedId === '' || !DB.guards.some(g => g.id === selectedId)) {
+                        delete DB.schedule[day];
+                    } else {
+                        DB.schedule[day] = selectedId;
+                    }
+                }
+            });
+            commitDataToStorage();
+            displayToastMessage("پیکربندی ساختار برنامه هفتگی کادر سالن قفل و ذخیره شد.", "success");
+            initLiveGuardWidget();
+        };
+
+        function buildStudentPersonalLogsHistory() {
+            const container = $('studentPersonalLogsHistoryContainer');
+            if(!container) return;
+            container.innerHTML = '';
+
+            if(!currentUser || currentUser.role !== 'student') {
+                container.innerHTML = `<p>دسترسی فقط برای دانش‌آموزان مجاز است.</p>`;
+                return;
+            }
+
+            const myPersonalLogs = DB.logs.filter(l => l.studentId === currentUser.id).sort((a,b) => new Date(b.isoTime) - new Date(a.isoTime));
+
+            if(myPersonalLogs.length === 0) {
+                container.innerHTML = `<p style="text-align:center; padding:20px; color:var(--text-muted);">هیچ سابقه ترددی برای کدملی شما در دیتابیس لوکال یافت نشد.</p>`;
+                return;
+            }
+
+            myPersonalLogs.forEach(l => {
+                const item = document.createElement('div');
+                item.className = 'interactive-item';
+                item.style.marginBottom = '8px';
+                item.style.borderRadius = 'var(--radius-sm)';
+                
+                const typeBadge = l.type === 'in' ? `<span class="badge success">🟢 ورود به سالن</span>` : `<span class="badge danger">🔴 خروج از سالن</span>`;
+                item.innerHTML = `
+                    <div>${typeBadge}</div>
+                    <div style="font-weight:600; font-size:13px; color:var(--text-muted); direction:ltr;">${l.time}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function loadCurrentSettingsFormValues() {
+            $('setting_new_password').value = '';
+            const config = DB.config || { startHour: 7, endHour: 20, endMinute: 1 };
+            $('setting_cfg_start_hour').value = config.startHour;
+            $('setting_cfg_end_hour').value = config.endHour;
+        }
+
+        $('action_update_profile_pass').onclick = function() {
+            const newPass = $('setting_new_password').value.trim();
+            if(!newPass) {
+                displayToastMessage("پسورد جدید نمی‌تواند خالی باشد.", "error");
+                return;
+            }
+
+            if(currentUser.role === 'admin') {
+                displayToastMessage("خطا: رمز عبور ادمین ارشد (اکبری) ثابت و غیرقابل تغییر سیستمی است.", "error");
+                return;
+            } else if(currentUser.role === 'guard') {
+                const idx = DB.guards.findIndex(g => g.id === currentUser.id);
+                if(idx !== -1) DB.guards[idx].pass = newPass;
+            } else if(currentUser.role === 'student') {
+                const idx = DB.students.findIndex(s => s.id === currentUser.id);
+                if(idx !== -1) DB.students[idx].pass = newPass;
+            }
+
+            currentUser.pass = newPass;
+            commitDataToStorage();
+            displayToastMessage("رمز عبور حساب شما با موفقیت بروزرسانی شد.", "success");
+            $('setting_new_password').value = '';
+        };
+
+        $('action_save_time_config').onclick = function() {
+            const startH = parseInt($('setting_cfg_start_hour').value);
+            const endH = parseInt($('setting_cfg_end_hour').value);
+
+            if(isNaN(startH) || isNaN(endH) || startH < 0 || startH > 23 || endH < 0 || endH > 23 || startH >= endH) {
+                displayToastMessage("ساعات بازگشایی یا انسداد وارد شده معتبر نمی‌باشد.", "error");
+                return;
+            }
+
+            DB.config = { startHour: startH, endHour: endH, endMinute: 1 };
+            commitDataToStorage();
+            displayToastMessage("تنظیمات هسته گیت با موفقیت ذخیره شد.", "success");
+            updateGateStatusDisplayIndicators();
+        };
+
+        $('setting_btn_export_db').onclick = function() {
+            const serialized = JSON.stringify(DB, null, 2);
+            const blob = new Blob([serialized], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = `DATABASE_BACKUP_LIBRARY_${new Date().toISOString().slice(0,10)}.json`;
+            anchor.click();
+            URL.revokeObjectURL(url);
+            displayToastMessage("فایل پشتیبان دیتابیس (JSON) با موفقیت صادر شد.", "success");
+        };
+
+        $('setting_btn_import_trigger').onclick = () => $('setting_file_import_db').click();
+        
+        $('setting_file_import_db').onchange = function(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if(parsed.students && parsed.guards && parsed.logs) {
+                        DB = parsed;
+                        commitDataToStorage();
+                        displayToastMessage("دیتابیس با موفقیت بازیابی شد. در حال بازنشانی سیستم...", "success");
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        displayToastMessage("ساختار فایل پشتیبان معتبر نیست.", "error");
+                    }
+                } catch(err) {
+                    displayToastMessage("خطا در پردازش فایل بکاپ.", "error");
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        const themeBtn = $('themeToggleBtn');
+        let currentTheme = localStorage.getItem('app_sys_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        themeBtn.innerHTML = currentTheme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+
+        themeBtn.onclick = function() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('app_sys_theme', currentTheme);
+            themeBtn.innerHTML = currentTheme === 'dark' ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+            displayToastMessage(`تم سیستم به حالت ${currentTheme === 'dark' ? 'دید شب' : 'روز'} تغییر یافت.`, "info");
+        };
+
+        $('quickClockBtn').onclick = () => {
+            displayToastMessage(`تاریخ رسمی: ${getPersianFormattedDateTime(appServerTime)}`, "warn");
+        };
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return '&quot;';
+            });
+        }
+
+        window.LibraryAppBridge = {
+            removeStudentByIndex: window.removeStudentByIndex,
+            removeGuardByIndex: window.removeGuardByIndex
+        };
+
+        function renderTicketPage() {
+            const container = $('ticketContainer');
+            if (!container) return;
+
+            if (currentUser.role === 'student') {
+                container.innerHTML = buildStudentTicketUI();
+                attachStudentTicketEvents();
+            } else if (currentUser.role === 'guard' || currentUser.role === 'admin') {
+                container.innerHTML = buildAdminGuardTicketUI();
+                attachAdminGuardTicketEvents();
+            }
+        }
+
+        function buildStudentTicketUI() {
+            const myTickets = DB.tickets.filter(t => t.studentId === currentUser.id);
+            
+            let html = `
+                <div class="card" style="background: var(--bg-main); margin-bottom: 20px;">
+                    <h4><i class="fa-solid fa-pen-to-square"></i> ثبت تیکت جدید</h4>
+                    <div class="flex-row-layout">
+                        <div class="form-group" style="flex: 1;">
+                            <label>موضوع</label>
+                            <input type="text" id="ticket_subject" placeholder="مثال: مشکل در ورود به سالن">
+                        </div>
+                        <div class="form-group" style="flex: 2;">
+                            <label>توضیحات کامل</label>
+                            <input type="text" id="ticket_message" placeholder="شرح مشکل خود را بنویسید...">
+                        </div>
+                    </div>
+                    <button id="action_submit_ticket" class="ok"><i class="fa-solid fa-paper-plane"></i> ارسال تیکت</button>
+                </div>
+                <h4><i class="fa-solid fa-list-check"></i> تاریخچه تیکت‌های من</h4>
+            `;
+
+            if (myTickets.length === 0) {
+                html += `<p style="color: var(--text-muted);">هیچ تیکتی ثبت نکرده‌اید.</p>`;
+            } else {
+                html += `<div class="interactive-list" id="student_ticket_list">`;
+                myTickets.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(t => {
+                    const statusBadge = t.status === 'open' 
+                        ? `<span class="badge primary">باز (در انتظار پاسخ)</span>` 
+                        : `<span class="badge success">بسته شده</span>`;
+                    
+                    html += `
+                        <div class="interactive-item" style="flex-direction: column; align-items: flex-start; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between; width: 100%;">
+                                <strong>${escapeHtml(t.subject)}</strong>
+                                ${statusBadge}
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-muted);">${escapeHtml(t.message)}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">ارسال در: ${t.createdAt}</div>
+                            ${t.responses && t.responses.length > 0 ? `
+                                <div style="width: 100%; margin-top: 8px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                                    <strong>پاسخ‌ها:</strong>
+                                    ${t.responses.map(r => `
+                                        <div style="font-size: 13px; background: var(--bg-main); padding: 8px; border-radius: var(--radius-sm); margin-top: 4px;">
+                                            <span style="font-weight: bold; color: var(--primary);">${escapeHtml(r.responderName)}:</span> ${escapeHtml(r.message)}
+                                            <span style="font-size: 11px; color: var(--text-muted);">(${r.createdAt})</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+            return html;
+        }
+
+        function attachStudentTicketEvents() {
+            const submitBtn = $('action_submit_ticket');
+            if (submitBtn) {
+                submitBtn.onclick = function() {
+                    const subject = $('ticket_subject').value.trim();
+                    const message = $('ticket_message').value.trim();
+                    
+                    if (!subject || !message) {
+                        displayToastMessage("موضوع و توضیحات تیکت اجباری است.", "error");
+                        return;
+                    }
+
+                    DB.tickets.push({
+                        id: Date.now().toString(),
+                        studentId: currentUser.id,
+                        studentName: currentUser.name,
+                        subject: subject,
+                        message: message,
+                        status: 'open',
+                        createdAt: getPersianFormattedDateTime(appServerTime),
+                        responses: []
+                    });
+                    
+                    commitDataToStorage();
+                    displayToastMessage("تیکت شما با موفقیت ثبت شد. منتظر پاسخ مراقب باشید.", "success");
+                    $('ticket_subject').value = '';
+                    $('ticket_message').value = '';
+                    renderTicketPage();
+                };
+            }
+        }
+
+        function buildAdminGuardTicketUI() {
+            let html = `
+                <h4><i class="fa-solid fa-inbox"></i> صندوق ورودی تیکت‌ها (همه)</h4>
+                <div style="margin-bottom: 15px;">
+                    <button id="ticket_filter_all" class="secondary" style="width: auto;">همه</button>
+                    <button id="ticket_filter_open" class="secondary" style="width: auto;">باز</button>
+                    <button id="ticket_filter_closed" class="secondary" style="width: auto;">بسته</button>
+                </div>
+                <div class="interactive-list" id="admin_ticket_list">
+            `;
+
+            const sortedTickets = [...DB.tickets].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            if (sortedTickets.length === 0) {
+                html += `<div style="padding: 20px; text-align: center; color: var(--text-muted);">هیچ تیکتی ثبت نشده است.</div>`;
+            } else {
+                sortedTickets.forEach(t => {
+                    const statusBadge = t.status === 'open' 
+                        ? `<span class="badge primary">باز</span>` 
+                        : `<span class="badge success">بسته</span>`;
+                    
+                    html += `
+                        <div class="interactive-item" style="flex-direction: column; align-items: flex-start; gap: 8px; border-right: 5px solid ${t.status === 'open' ? '#3182ce' : '#48bb78'};">
+                            <div style="display: flex; justify-content: space-between; width: 100%;">
+                                <div>
+                                    <strong>${escapeHtml(t.subject)}</strong> 
+                                    <span style="font-size: 12px; color: var(--text-muted);">(از: ${escapeHtml(t.studentName)})</span>
+                                </div>
+                                ${statusBadge}
+                            </div>
+                            <div style="font-size: 13px; color: var(--text-muted);">${escapeHtml(t.message)}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">تاریخ: ${t.createdAt}</div>
+                            
+                            ${t.responses && t.responses.length > 0 ? `
+                                <div style="width: 100%; margin-top: 8px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                                    <strong>پاسخ‌های قبلی:</strong>
+                                    ${t.responses.map(r => `
+                                        <div style="font-size: 13px; background: var(--bg-main); padding: 6px; border-radius: var(--radius-sm); margin-top: 4px;">
+                                            <span style="font-weight: bold; color: var(--primary);">${escapeHtml(r.responderName)}:</span> ${escapeHtml(r.message)}
+                                            <span style="font-size: 11px; color: var(--text-muted);">(${r.createdAt})</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${t.status === 'open' ? `
+                                <div style="width: 100%; margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <input type="text" id="response_input_${t.id}" placeholder="پاسخ خود را بنویسید..." style="flex: 1; min-width: 150px; padding: 10px;">
+                                    <button class="ok" style="width: auto; padding: 10px 20px;" onclick="window.LibraryAppBridge.submitTicketResponse('${t.id}')">
+                                        <i class="fa-solid fa-reply"></i> پاسخ
+                                    </button>
+                                    <button class="bad" style="width: auto; padding: 10px 20px;" onclick="window.LibraryAppBridge.closeTicket('${t.id}')">
+                                        <i class="fa-solid fa-lock"></i> بستن تیکت
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        function attachAdminGuardTicketEvents() {
+            const filterBtns = document.querySelectorAll('#ticket_filter_all, #ticket_filter_open, #ticket_filter_closed');
+            filterBtns.forEach(btn => {
+                btn.onclick = function() {
+                    document.querySelectorAll('#ticket_filter_all, #ticket_filter_open, #ticket_filter_closed')
+                        .forEach(b => { b.style.background = 'var(--bg-main)'; b.style.color = 'var(--text-main)'; });
+                    this.style.background = 'var(--primary)';
+                    this.style.color = 'white';
+                    renderTicketPage();
+                };
+            });
+            const allBtn = document.getElementById('ticket_filter_all');
+            if (allBtn) { allBtn.style.background = 'var(--primary)'; allBtn.style.color = 'white'; }
+        }
+
+        window.LibraryAppBridge.submitTicketResponse = function(ticketId) {
+            const input = document.getElementById(`response_input_${ticketId}`);
+            if (!input) return;
+            const message = input.value.trim();
+            if (!message) {
+                displayToastMessage("متن پاسخ نمی‌تواند خالی باشد.", "error");
+                return;
+            }
+
+            const ticketIndex = DB.tickets.findIndex(t => t.id === ticketId);
+            if (ticketIndex === -1) return;
+
+            DB.tickets[ticketIndex].responses.push({
+                responderName: currentUser.name,
+                message: message,
+                createdAt: getPersianFormattedDateTime(appServerTime)
+            });
+
+            commitDataToStorage();
+            displayToastMessage("پاسخ شما با موفقیت ثبت شد.", "success");
+            renderTicketPage();
+        };
+
+        window.LibraryAppBridge.closeTicket = function(ticketId) {
+            const ticketIndex = DB.tickets.findIndex(t => t.id === ticketId);
+            if (ticketIndex === -1) return;
+
+            if (confirm("آیا مطمئن هستید که می‌خواهید این تیکت را ببندید؟ (دیگر قابل پاسخگویی نخواهد بود)")) {
+                DB.tickets[ticketIndex].status = 'closed';
+                commitDataToStorage();
+                displayToastMessage("تیکت با موفقیت بسته شد.", "success");
+                renderTicketPage();
+            }
+        };
+
+        function enterSystem() {
+            document.getElementById('landing-page').classList.add('hide-lp');
+            document.getElementById('app-system').style.display = 'block';
+            initializeDatabaseHearth();
+            synchronizeGlobalTimeFramework();
+        }
+        window.enterSystem = enterSystem;
+
+    })();
+</script>
+<!-- پنجره درباره ما -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="about-card" id="card">
+    
+    <div class="avatar-container">
+      <div class="avatar-ring"></div>
+      <div class="avatar">👨‍💻</div>
+    </div>
+
+    <h2 class="name">امیرحسام وحیدنژاد</h2>
+    <p class="role">طراح و توسعه‌دهنده وب</p>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">سازنده</span>
+        <span class="info-val">امیرحسام وحیدنژاد</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">تاریخ ساخت</span>
+        <span class="info-val">۱۴۰۵ / ۰۴ / ۲۵</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">وضعیت</span>
+        <span class="info-val" style="color: #4ade80;">ارتقا یافته</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">نسخه</span>
+        <span class="info-val">v3.0 Ultra</span>
+      </div>
+    </div>
+
+    <p class="description" id="typewriter"></p>
+
+    <div class="socials">
+      <a href="#" class="social-btn"><i class="fab fa-github"></i></a>
+      <a href="#" class="social-btn"><i class="fab fa-telegram"></i></a>
+      <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+    </div>
+
+    <button class="btn-close" onclick="closeAbout()">بستن</button>
+  </div>
+</div>
+
+<style>
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(3, 7, 18, 0.85);
+    backdrop-filter: blur(16px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    z-index: 9999;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .about-card {
+    background: rgba(17, 24, 39, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 28px;
+    padding: 35px;
+    width: 90%;
+    max-width: 460px;
+    text-align: center;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(99, 102, 241, 0.25);
+    transform-style: preserve-3d;
+    transform: scale(0.6) rotateX(15deg) translateY(80px);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    color: #fff;
+  }
+  .modal-overlay.active .about-card {
+    transform: scale(1) rotateX(0deg) translateY(0);
+  }
+  .avatar-container { position: relative; width: 100px; height: 100px; margin: 0 auto 20px; }
+  .avatar-ring { position: absolute; inset: -5px; border-radius: 50%; background: linear-gradient(45deg, #3b82f6, #ec4899, #8b5cf6, #06b6d4); background-size: 300% 300%; animation: gradientMove 4s ease infinite; filter: blur(8px); }
+  .avatar { position: relative; width: 100%; height: 100%; background: #0f172a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.8rem; border: 2px solid rgba(255, 255, 255, 0.2); }
+  .name { font-size: 1.7rem; font-weight: 900; background: linear-gradient(to right, #60a5fa, #e879f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+  .role { font-size: 0.9rem; color: #9ca3af; margin-bottom: 20px; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 18px; }
+  .info-item { display: flex; flex-direction: column; align-items: center; }
+  .info-label { font-size: 0.75rem; color: #6b7280; margin-bottom: 3px; }
+  .info-val { font-size: 0.9rem; font-weight: 700; color: #f3f4f6; }
+  .description { font-size: 0.88rem; line-height: 1.8; color: #d1d5db; min-height: 65px; margin-bottom: 20px; }
+  .socials { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }
+  .social-btn { width: 38px; height: 38px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s; }
+  .social-btn:hover { background: #6366f1; transform: translateY(-3px) scale(1.1); box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4); }
+  .btn-close { width: 100%; padding: 10px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+  .btn-close:hover { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
+  @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+</style>
+
+<script>
+  const textToType = "این وب‌سایت توسط امیرحسام وحیدنژاد با هدف ارائه انیمیشن‌های فوق‌العاده، سرعت بالا و رابط کاربری مدرن طراحی و اجرا شده است.";
+  let index = 0;
+  let isTyping = false;
+
+  function typeEffect() {
+    if (index < textToType.length) {
+      document.getElementById("typewriter").innerHTML += textToType.charAt(index);
+      index++;
+      setTimeout(typeEffect, 25);
+    }
+  }
+
+  function openAbout() {
+    const modal = document.getElementById('aboutModal');
+    modal.classList.add('active');
+    if(!isTyping) {
+      document.getElementById("typewriter").innerHTML = "";
+      index = 0;
+      isTyping = true;
+      setTimeout(typeEffect, 300);
+    }
+  }
+
+  function closeAbout() {
+    const modal = document.getElementById('aboutModal');
+    modal.classList.remove('active');
+    isTyping = false;
+  }
+
+  const card = document.getElementById('card');
+  document.addEventListener('mousemove', (e) => {
+    if (!document.getElementById('aboutModal').classList.contains('active')) return;
+    let xAxis = (window.innerWidth / 2 - e.pageX) / 20;
+    let yAxis = (window.innerHeight / 2 - e.pageY) / 20;
+    card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+  });
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('aboutModal');
+    if (event.target === modal) closeAbout();
+  }
+</script>
+</body>
+</html>
